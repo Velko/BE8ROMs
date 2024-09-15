@@ -3,8 +3,6 @@
 # The size of 28C16 EEPROM is 2 KiB, adjust this for larger EEPROMs
 EEPROM_SIZE = 2048
 
-import copy
-
 HLT = 0b1000000000000000  # Halt clock
 MI  = 0b0100000000000000  # Memory address register in
 RI  = 0b0010000000000000  # RAM data in
@@ -22,13 +20,18 @@ CO  = 0b0000000000000100  # Program counter out
 J   = 0b0000000000000010  # Jump (program counter in)
 FI  = 0b0000000000000001  # Flags in
 
-FLAGS_Z0C0 = 0
-FLAGS_Z0C1 = 1
-FLAGS_Z1C0 = 2
-FLAGS_Z1C1 = 3
+# combinations of flag bits
+FLAGS_Z0C0 = 0b00
+FLAGS_Z0C1 = 0b01
+FLAGS_Z1C0 = 0b10
+FLAGS_Z1C1 = 0b11
 
+# opcode numbers of conditional jump instructions
 JC = 0b0111
 JZ = 0b1000
+
+# marker for conditional jump microstep, defaults to not-jump
+CJMP = 0
 
 UCODE_TEMPLATE = [
     [ MI|CO,  RO|II|CE,  0,      0,      0,           0, 0, 0 ], # 0000 - NOP
@@ -38,8 +41,8 @@ UCODE_TEMPLATE = [
     [ MI|CO,  RO|II|CE,  IO|MI,  AO|RI,  0,           0, 0, 0 ], # 0100 - STA
     [ MI|CO,  RO|II|CE,  IO|AI,  0,      0,           0, 0, 0 ], # 0101 - LDI
     [ MI|CO,  RO|II|CE,  IO|J,   0,      0,           0, 0, 0 ], # 0110 - JMP
-    [ MI|CO,  RO|II|CE,  0,      0,      0,           0, 0, 0 ], # 0111 - JC
-    [ MI|CO,  RO|II|CE,  0,      0,      0,           0, 0, 0 ], # 1000 - JZ
+    [ MI|CO,  RO|II|CE,  CJMP,   0,      0,           0, 0, 0 ], # 0111 - JC
+    [ MI|CO,  RO|II|CE,  CJMP,   0,      0,           0, 0, 0 ], # 1000 - JZ
     [ MI|CO,  RO|II|CE,  0,      0,      0,           0, 0, 0 ], # 1001
     [ MI|CO,  RO|II|CE,  0,      0,      0,           0, 0, 0 ], # 1010
     [ MI|CO,  RO|II|CE,  0,      0,      0,           0, 0, 0 ], # 1011
@@ -50,10 +53,17 @@ UCODE_TEMPLATE = [
 ]
 
 # Array where to accumulate the bytes before writing them out
+# Pre-filled with 0xFF, to match state of a blank EEPROM
 eeprom_data = bytearray(b'\xFF') * EEPROM_SIZE
+
+import copy
 
 def initUCode():
     ucode = {}
+
+    # make copies of the microcode template and patch them
+    # for conditional jumps by replacing appropiate CJMP markers
+    # with a step that loads new value in PC
 
     # ZF = 0, CF = 0
     ucode[FLAGS_Z0C0] = copy.deepcopy(UCODE_TEMPLATE)
