@@ -2,20 +2,34 @@
 
 digits = [ 0x7e, 0x30, 0x6d, 0x79, 0x33, 0x5b, 0x5f, 0x70, 0x7f, 0x7b ]
 
-eeprom_data = bytearray(2048)
+# The size of 28C16 EEPROM is 2 KiB
+EEPROM_SIZE = 2048
 
-def to_unsigned(val):
-    return (val + 256) % 256
-
-def take_digit(val, div):
-    return int(abs(value / div)) % 10
-
+# Offsets, where different parts of a number are stored
 ONES_OFFSET = 0
 TENS_OFFSET = ONES_OFFSET + 256
 HUND_OFFSET = TENS_OFFSET + 256
 SIGN_OFFSET = HUND_OFFSET + 256
 
+# Two's complement starts
 TWO_COMP_OFFSET = 256 * 4
+
+# Array where to accumulate the bytes before writing them out
+eeprom_data = bytearray(EEPROM_SIZE)
+
+def to_unsigned(val):
+    """ Convert signed single-byte integer to unsigned. Equivalent of casting to uint8_t in C language.
+        Positive values are unchanged, negative ones are converted to their bit-equivalent positive ones.
+        For example: -1 (0b11111111) is converted to 255 (which also is 0b11111111).
+    """
+    return (val + 256) % 256
+
+def take_digit(val, div):
+    """ Extract digit from a number. The value of divisor (1, 10 or 100) specifies which one to get.
+        Works for both positive and negative numbers.
+    """
+    return int(abs(value / div)) % 10
+
 
 print("Programming ones place")
 for value in range(256):
@@ -52,5 +66,6 @@ for value in range(-128, 128):
     else:
         eeprom_data[value + SIGN_OFFSET + TWO_COMP_OFFSET] = 0
 
+print("Saving to 'display.bin' file")
 with open("display.bin", "wb") as f:
     f.write(eeprom_data)
