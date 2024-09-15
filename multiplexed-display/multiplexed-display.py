@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# The size of 28C16 EEPROM is 2 KiB, adjust this for larger EEPROMs
+EEPROM_SIZE = 2048
+
 # Re-arrange the segment bits, if display is wired differently
 SEG_BIT_DOT = 1 << 7
 SEG_BIT_A   = 1 << 6
@@ -46,10 +49,6 @@ CHAR_MINUS = SEG_BIT_G
 CHAR_h = SEG_BIT_C | SEG_BIT_E | SEG_BIT_F | SEG_BIT_G
 CHAR_o = SEG_BIT_C | SEG_BIT_D | SEG_BIT_E | SEG_BIT_G
 
-
-# The size of 28C16 EEPROM is 2 KiB, adjust this for larger EEPROMs
-EEPROM_SIZE = 2048
-
 # Offsets, where different parts of a number are stored
 ONES_OFFSET = 0
 TENS_OFFSET = ONES_OFFSET + 256
@@ -70,8 +69,8 @@ def to_unsigned(val):
     return (val + 256) % 256
 
 def take_digit(value, div, base):
-    """ Extract digit from a number. The value of divisor (1, 10 or 100) specifies which one to get.
-        Works for both positive and negative numbers.
+    """ Extract digit from a number in given number base. The value of divisor (1, 10 or 100 in that specific base)
+        determines which one to get. Works for both positive and negative numbers.
     """
     return int(abs(value / div)) % base
 
