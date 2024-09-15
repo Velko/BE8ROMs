@@ -59,7 +59,7 @@ SIGN_OFFSET = HUND_OFFSET + 256
 MODE_SIZE = 256 * 4
 
 # Array where to accumulate the bytes before writing them out
-eeprom_data = bytearray(EEPROM_SIZE)
+eeprom_data = bytearray(b'\xFF') * EEPROM_SIZE
 
 def to_unsigned(val):
     """ Convert signed single-byte integer to unsigned. Equivalent of casting to uint8_t in C language.

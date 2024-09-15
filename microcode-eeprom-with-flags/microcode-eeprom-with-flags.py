@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+# The size of 28C16 EEPROM is 2 KiB, adjust this for larger EEPROMs
+EEPROM_SIZE = 2048
+
 import copy
 
 HLT = 0b1000000000000000  # Halt clock
@@ -47,7 +50,7 @@ UCODE_TEMPLATE = [
 ]
 
 # Array where to accumulate the bytes before writing them out
-eeprom_data = bytearray(1024)
+eeprom_data = bytearray(b'\xFF') * EEPROM_SIZE
 
 def initUCode():
     ucode = {}
