@@ -61,48 +61,58 @@ def to_unsigned(val):
     """
     return (val + 256) % 256
 
-def take_digit(val, div):
+def take_digit(value, div):
     """ Extract digit from a number. The value of divisor (1, 10 or 100) specifies which one to get.
         Works for both positive and negative numbers.
     """
     return int(abs(value / div)) % 10
 
 
-print("Programming ones place")
-for value in range(256):
-    eeprom_data[value + ONES_OFFSET] = digits[take_digit(value, 1)]
+def write_decimal_unsigned():
+    print("Programming ones place")
+    for value in range(256):
+        eeprom_data[value + ONES_OFFSET] = digits[take_digit(value, 1)]
 
-print("Programming tens place")
-for value in range(256):
-    eeprom_data[value + TENS_OFFSET] = digits[take_digit(value, 10)]
+    print("Programming tens place")
+    for value in range(256):
+        eeprom_data[value + TENS_OFFSET] = digits[take_digit(value, 10)]
 
-print("Programming hundreds place")
-for value in range(256):
-    eeprom_data[value + HUND_OFFSET] = digits[take_digit(value, 100)]
+    print("Programming hundreds place")
+    for value in range(256):
+        eeprom_data[value + HUND_OFFSET] = digits[take_digit(value, 100)]
 
-print("Programming sign")
-for value in range(256):
-    eeprom_data[value + SIGN_OFFSET] = DIGIT_BLANK
+    print("Programming sign")
+    for value in range(256):
+        eeprom_data[value + SIGN_OFFSET] = DIGIT_BLANK
 
-print("Programming ones place (twos complement)")
-for value in range(-128, 128):
-    eeprom_data[to_unsigned(value) + ONES_OFFSET + TWO_COMP_OFFSET] = digits[take_digit(value, 1)]
 
-print("Programming tens place (twos complement)")
-for value in range(-128, 128):
-    eeprom_data[to_unsigned(value) + TENS_OFFSET + TWO_COMP_OFFSET] = digits[take_digit(value, 10)]
+def write_decimal_signed():
+    print("Programming ones place (twos complement)")
+    for value in range(-128, 128):
+        eeprom_data[to_unsigned(value) + ONES_OFFSET + TWO_COMP_OFFSET] = digits[take_digit(value, 1)]
 
-print("Programming hundreds place (twos complement)")
-for value in range(-128, 128):
-    eeprom_data[to_unsigned(value) + HUND_OFFSET + TWO_COMP_OFFSET] = digits[take_digit(value, 100)]
+    print("Programming tens place (twos complement)")
+    for value in range(-128, 128):
+        eeprom_data[to_unsigned(value) + TENS_OFFSET + TWO_COMP_OFFSET] = digits[take_digit(value, 10)]
 
-print("Programming sign (twos complement)")
-for value in range(-128, 128):
-    if value < 0:
-        eeprom_data[to_unsigned(value) + SIGN_OFFSET + TWO_COMP_OFFSET] = DIGIT_MINUS
-    else:
-        eeprom_data[value + SIGN_OFFSET + TWO_COMP_OFFSET] = DIGIT_BLANK
+    print("Programming hundreds place (twos complement)")
+    for value in range(-128, 128):
+        eeprom_data[to_unsigned(value) + HUND_OFFSET + TWO_COMP_OFFSET] = digits[take_digit(value, 100)]
 
-print("Saving to 'display.bin' file")
-with open("display.bin", "wb") as f:
-    f.write(eeprom_data)
+    print("Programming sign (twos complement)")
+    for value in range(-128, 128):
+        if value < 0:
+            eeprom_data[to_unsigned(value) + SIGN_OFFSET + TWO_COMP_OFFSET] = DIGIT_MINUS
+        else:
+            eeprom_data[value + SIGN_OFFSET + TWO_COMP_OFFSET] = DIGIT_BLANK
+
+def store_to_file():
+    print("Saving to 'display.bin' file")
+    with open("display.bin", "wb") as f:
+        f.write(eeprom_data)
+
+
+if __name__ == "__main__":
+    write_decimal_unsigned()
+    write_decimal_signed()
+    store_to_file()
