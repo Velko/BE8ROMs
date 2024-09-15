@@ -92,12 +92,14 @@ def prepare_eeprom():
 
     # Program the bits of microcode into the EEPROM
     for address in range(1024):
-        flags       = (address & 0b1100000000) >> 8
-        byte_sel    = (address & 0b0010000000) >> 7
-        instruction = (address & 0b0001111000) >> 3
-        step        = (address & 0b0000000111)
+        # Extract address bits according to their purpose:
+        # FF C IIII SSS
+        flags       = (address & 0b1100000000) >> 8  # FF
+        chip_sel    = (address & 0b0010000000) >> 7  # C
+        instruction = (address & 0b0001111000) >> 3  # IIII
+        step        = (address & 0b0000000111)       # SSS
 
-        if byte_sel:
+        if chip_sel:
             eeprom_data[address] = ucode[flags][instruction][step] & 0xFF
         else:
             eeprom_data[address] = ucode[flags][instruction][step] >> 8
