@@ -13,40 +13,47 @@ def to_unsigned(val):
 def take_digit(val, div):
     return int(abs(value / div)) % 10
 
+ONES_OFFSET = 0
+TENS_OFFSET = ONES_OFFSET + 256
+HUND_OFFSET = TENS_OFFSET + 256
+SIGN_OFFSET = HUND_OFFSET + 256
+
+TWO_COMP_OFFSET = 256 * 4
+
 print("Programming ones place")
 for value in range(256):
-    writeEEPROM(value, digits[take_digit(value, 1)])
+    writeEEPROM(value + ONES_OFFSET, digits[take_digit(value, 1)])
 
 print("Programming tens place")
 for value in range(256):
-    writeEEPROM(value + 256, digits[take_digit(value, 10)])
+    writeEEPROM(value + TENS_OFFSET, digits[take_digit(value, 10)])
 
 print("Programming hundreds place")
 for value in range(256):
-    writeEEPROM(value + 512, digits[take_digit(value, 100)])
+    writeEEPROM(value + HUND_OFFSET, digits[take_digit(value, 100)])
 
 print("Programming sign")
 for value in range(256):
-    writeEEPROM(value + 768, 0)
+    writeEEPROM(value + SIGN_OFFSET, 0)
 
 print("Programming ones place (twos complement)")
 for value in range(-128, 128):
-    writeEEPROM(to_unsigned(value) + 1024, digits[take_digit(value, 1)])
+    writeEEPROM(to_unsigned(value) + ONES_OFFSET + TWO_COMP_OFFSET, digits[take_digit(value, 1)])
 
 print("Programming tens place (twos complement)")
 for value in range(-128, 128):
-    writeEEPROM(to_unsigned(value) + 1280, digits[take_digit(value, 10)])
+    writeEEPROM(to_unsigned(value) + TENS_OFFSET + TWO_COMP_OFFSET, digits[take_digit(value, 10)])
 
 print("Programming hundreds place (twos complement)")
 for value in range(-128, 128):
-    writeEEPROM(to_unsigned(value) + 1536, digits[take_digit(value, 100)])
+    writeEEPROM(to_unsigned(value) + HUND_OFFSET + TWO_COMP_OFFSET, digits[take_digit(value, 100)])
 
 print("Programming sign (twos complement)")
 for value in range(-128, 128):
     if value < 0:
-        writeEEPROM(to_unsigned(value) + 1792, 0x01)
+        writeEEPROM(to_unsigned(value) + SIGN_OFFSET + TWO_COMP_OFFSET, 0x01)
     else:
-        writeEEPROM(value + 1792, 0)
+        writeEEPROM(value + SIGN_OFFSET + TWO_COMP_OFFSET, 0)
 
 with open("display.bin", "wb") as f:
     f.write(eeprom_data)
