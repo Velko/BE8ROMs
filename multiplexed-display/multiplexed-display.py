@@ -33,13 +33,21 @@ digits = [ SEG_BIT_A | SEG_BIT_B | SEG_BIT_C | SEG_BIT_D | SEG_BIT_E | SEG_BIT_F
            SEG_BIT_A | SEG_BIT_B | SEG_BIT_C,                                                 # 7
            SEG_BIT_A | SEG_BIT_B | SEG_BIT_C | SEG_BIT_D | SEG_BIT_E | SEG_BIT_F | SEG_BIT_G, # 8
            SEG_BIT_A | SEG_BIT_B | SEG_BIT_C | SEG_BIT_D | SEG_BIT_F | SEG_BIT_G,             # 9
+           SEG_BIT_A | SEG_BIT_B | SEG_BIT_C | SEG_BIT_E | SEG_BIT_F | SEG_BIT_G,             # A
+           SEG_BIT_C | SEG_BIT_D | SEG_BIT_E | SEG_BIT_F | SEG_BIT_G,                         # B
+           SEG_BIT_A | SEG_BIT_D | SEG_BIT_E | SEG_BIT_F,                                     # C
+           SEG_BIT_B | SEG_BIT_C | SEG_BIT_D | SEG_BIT_E | SEG_BIT_G,                         # D
+           SEG_BIT_A | SEG_BIT_D | SEG_BIT_E | SEG_BIT_F | SEG_BIT_G,                         # E
+           SEG_BIT_A | SEG_BIT_E | SEG_BIT_F | SEG_BIT_G,                                     # F
         ]
 
 DIGIT_BLANK = 0
-DIGIT_MINUS = SEG_BIT_G
+CHAR_MINUS = SEG_BIT_G
+CHAR_h = SEG_BIT_C | SEG_BIT_E | SEG_BIT_F | SEG_BIT_G
+CHAR_o = SEG_BIT_C | SEG_BIT_D | SEG_BIT_E | SEG_BIT_G
 
 
-# The size of 28C16 EEPROM is 2 KiB
+# The size of 28C16 EEPROM is 2 KiB, adjust this for larger EEPROMs
 EEPROM_SIZE = 2048
 
 # Offsets, where different parts of a number are stored
@@ -48,8 +56,8 @@ TENS_OFFSET = ONES_OFFSET + 256
 HUND_OFFSET = TENS_OFFSET + 256
 SIGN_OFFSET = HUND_OFFSET + 256
 
-# Two's complement starts
-TWO_COMP_OFFSET = 256 * 4
+# Space on EEPROM occupied by each "mode"
+MODE_SIZE = 256 * 4
 
 # Array where to accumulate the bytes before writing them out
 eeprom_data = bytearray(EEPROM_SIZE)
@@ -61,28 +69,44 @@ def to_unsigned(val):
     """
     return (val + 256) % 256
 
-def take_digit(value, div):
+def take_digit(value, div, base):
     """ Extract digit from a number. The value of divisor (1, 10 or 100) specifies which one to get.
         Works for both positive and negative numbers.
     """
-    return int(abs(value / div)) % 10
+    return int(abs(value / div)) % base
 
 
-def write_decimal_unsigned():
+def write_decimal_unsigned(start):
     print("Programming unsigned decimal")
     for value in range(256):
-        eeprom_data[value + ONES_OFFSET] = digits[take_digit(value, 1)]
-        eeprom_data[value + TENS_OFFSET] = digits[take_digit(value, 10)]
-        eeprom_data[value + HUND_OFFSET] = digits[take_digit(value, 100)]
-        eeprom_data[value + SIGN_OFFSET] = DIGIT_BLANK
+        eeprom_data[value + ONES_OFFSET + start] = digits[take_digit(value, 1, 10)]
+        eeprom_data[value + TENS_OFFSET + start] = digits[take_digit(value, 10, 10)]
+        eeprom_data[value + HUND_OFFSET + start] = digits[take_digit(value, 100, 10)]
+        eeprom_data[value + SIGN_OFFSET + start] = DIGIT_BLANK
 
-def write_decimal_signed():
+def write_decimal_signed(start):
     print("Programming signed decimal (twos complement)")
     for value in range(-128, 128):
-        eeprom_data[to_unsigned(value) + ONES_OFFSET + TWO_COMP_OFFSET] = digits[take_digit(value, 1)]
-        eeprom_data[to_unsigned(value) + TENS_OFFSET + TWO_COMP_OFFSET] = digits[take_digit(value, 10)]
-        eeprom_data[to_unsigned(value) + HUND_OFFSET + TWO_COMP_OFFSET] = digits[take_digit(value, 100)]
-        eeprom_data[to_unsigned(value) + SIGN_OFFSET + TWO_COMP_OFFSET] = DIGIT_MINUS if value < 0 else DIGIT_BLANK
+        eeprom_data[to_unsigned(value) + ONES_OFFSET + start] = digits[take_digit(value, 1, 10)]
+        eeprom_data[to_unsigned(value) + TENS_OFFSET + start] = digits[take_digit(value, 10, 10)]
+        eeprom_data[to_unsigned(value) + HUND_OFFSET + start] = digits[take_digit(value, 100, 10)]
+        eeprom_data[to_unsigned(value) + SIGN_OFFSET + start] = CHAR_MINUS if value < 0 else DIGIT_BLANK
+
+def write_hex(start):
+    print("Programming hex")
+    for value in range(256):
+        eeprom_data[value + ONES_OFFSET + start] = digits[take_digit(value, 0x1, 16)]
+        eeprom_data[value + TENS_OFFSET + start] = digits[take_digit(value, 0x10, 16)]
+        eeprom_data[value + HUND_OFFSET + start] = DIGIT_BLANK
+        eeprom_data[value + SIGN_OFFSET + start] = CHAR_h
+
+def write_oct(start):
+    print("Programming oct")
+    for value in range(256):
+        eeprom_data[value + ONES_OFFSET + start] = digits[take_digit(value, 0o1, 8)]
+        eeprom_data[value + TENS_OFFSET + start] = digits[take_digit(value, 0o10, 8)]
+        eeprom_data[value + HUND_OFFSET + start] = digits[take_digit(value, 0o10, 8)]
+        eeprom_data[value + SIGN_OFFSET + start] = CHAR_o
 
 
 def store_to_file():
@@ -92,6 +116,11 @@ def store_to_file():
 
 
 if __name__ == "__main__":
-    write_decimal_unsigned()
-    write_decimal_signed()
+    write_decimal_unsigned(MODE_SIZE * 0)
+    write_decimal_signed(MODE_SIZE * 1)
+
+    # Larger EEPROM is required for more display modes
+    #write_hex(MODE_SIZE * 2)
+    #write_oct(MODE_SIZE * 3)
+
     store_to_file()
