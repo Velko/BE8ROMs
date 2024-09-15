@@ -109,8 +109,8 @@ def write_oct(start):
 
 
 def store_to_file():
-    print("Saving to 'display.bin' file")
-    with open("display.bin", "wb") as f:
+    print("Saving to 'multiplexed-display.bin' file")
+    with open("multiplexed-display.bin", "wb") as f:
         f.write(eeprom_data)
 
 
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     write_decimal_unsigned(MODE_SIZE * 0)
     write_decimal_signed(MODE_SIZE * 1)
 
-    # Larger EEPROM is required for more display modes
+    # Larger EEPROM is required for additional display modes
     #write_hex(MODE_SIZE * 2)
     #write_oct(MODE_SIZE * 3)
 
