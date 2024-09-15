@@ -69,42 +69,21 @@ def take_digit(value, div):
 
 
 def write_decimal_unsigned():
-    print("Programming ones place")
+    print("Programming unsigned decimal")
     for value in range(256):
         eeprom_data[value + ONES_OFFSET] = digits[take_digit(value, 1)]
-
-    print("Programming tens place")
-    for value in range(256):
         eeprom_data[value + TENS_OFFSET] = digits[take_digit(value, 10)]
-
-    print("Programming hundreds place")
-    for value in range(256):
         eeprom_data[value + HUND_OFFSET] = digits[take_digit(value, 100)]
-
-    print("Programming sign")
-    for value in range(256):
         eeprom_data[value + SIGN_OFFSET] = DIGIT_BLANK
 
-
 def write_decimal_signed():
-    print("Programming ones place (twos complement)")
+    print("Programming signed decimal (twos complement)")
     for value in range(-128, 128):
         eeprom_data[to_unsigned(value) + ONES_OFFSET + TWO_COMP_OFFSET] = digits[take_digit(value, 1)]
-
-    print("Programming tens place (twos complement)")
-    for value in range(-128, 128):
         eeprom_data[to_unsigned(value) + TENS_OFFSET + TWO_COMP_OFFSET] = digits[take_digit(value, 10)]
-
-    print("Programming hundreds place (twos complement)")
-    for value in range(-128, 128):
         eeprom_data[to_unsigned(value) + HUND_OFFSET + TWO_COMP_OFFSET] = digits[take_digit(value, 100)]
+        eeprom_data[to_unsigned(value) + SIGN_OFFSET + TWO_COMP_OFFSET] = DIGIT_MINUS if value < 0 else DIGIT_BLANK
 
-    print("Programming sign (twos complement)")
-    for value in range(-128, 128):
-        if value < 0:
-            eeprom_data[to_unsigned(value) + SIGN_OFFSET + TWO_COMP_OFFSET] = DIGIT_MINUS
-        else:
-            eeprom_data[value + SIGN_OFFSET + TWO_COMP_OFFSET] = DIGIT_BLANK
 
 def store_to_file():
     print("Saving to 'display.bin' file")
