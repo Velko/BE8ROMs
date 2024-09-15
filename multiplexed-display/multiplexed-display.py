@@ -1,9 +1,42 @@
 #!/usr/bin/env python3
 
-digits = [ 0x7e, 0x30, 0x6d, 0x79, 0x33, 0x5b, 0x5f, 0x70, 0x7f, 0x7b ]
+# Re-arrange the segment bits, if display is wired differently
+SEG_BIT_DOT = 1 << 7
+SEG_BIT_A   = 1 << 6
+SEG_BIT_B   = 1 << 5
+SEG_BIT_C   = 1 << 4
+SEG_BIT_D   = 1 << 3
+SEG_BIT_E   = 1 << 2
+SEG_BIT_F   = 1 << 1
+SEG_BIT_G   = 1 << 0
+
+
+# Segments:
+#   +-- a --+
+#   |       |
+#   f       b
+#   |       |
+#   +-- g --+
+#   |       |
+#   e       c
+#   |       |
+#   +-- d --+
+
+
+digits = [ SEG_BIT_A | SEG_BIT_B | SEG_BIT_C | SEG_BIT_D | SEG_BIT_E | SEG_BIT_F,             # 0
+           SEG_BIT_B | SEG_BIT_C,                                                             # 1
+           SEG_BIT_A | SEG_BIT_B | SEG_BIT_D | SEG_BIT_E | SEG_BIT_G,                         # 2
+           SEG_BIT_A | SEG_BIT_B | SEG_BIT_C | SEG_BIT_D | SEG_BIT_G,                         # 3
+           SEG_BIT_B | SEG_BIT_C | SEG_BIT_F | SEG_BIT_G,                                     # 4
+           SEG_BIT_A | SEG_BIT_C | SEG_BIT_D | SEG_BIT_F | SEG_BIT_G,                         # 5
+           SEG_BIT_A | SEG_BIT_C | SEG_BIT_D | SEG_BIT_E | SEG_BIT_F | SEG_BIT_G,             # 6
+           SEG_BIT_A | SEG_BIT_B | SEG_BIT_C,                                                 # 7
+           SEG_BIT_A | SEG_BIT_B | SEG_BIT_C | SEG_BIT_D | SEG_BIT_E | SEG_BIT_F | SEG_BIT_G, # 8
+           SEG_BIT_A | SEG_BIT_B | SEG_BIT_C | SEG_BIT_D | SEG_BIT_F | SEG_BIT_G,             # 9
+        ]
 
 DIGIT_BLANK = 0
-DIGIT_MINUS = 0x01
+DIGIT_MINUS = SEG_BIT_G
 
 
 # The size of 28C16 EEPROM is 2 KiB
