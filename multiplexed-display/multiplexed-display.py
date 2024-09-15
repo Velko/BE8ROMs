@@ -2,6 +2,10 @@
 
 digits = [ 0x7e, 0x30, 0x6d, 0x79, 0x33, 0x5b, 0x5f, 0x70, 0x7f, 0x7b ]
 
+DIGIT_BLANK = 0
+DIGIT_MINUS = 0x01
+
+
 # The size of 28C16 EEPROM is 2 KiB
 EEPROM_SIZE = 2048
 
@@ -45,7 +49,7 @@ for value in range(256):
 
 print("Programming sign")
 for value in range(256):
-    eeprom_data[value + SIGN_OFFSET] = 0
+    eeprom_data[value + SIGN_OFFSET] = DIGIT_BLANK
 
 print("Programming ones place (twos complement)")
 for value in range(-128, 128):
@@ -62,9 +66,9 @@ for value in range(-128, 128):
 print("Programming sign (twos complement)")
 for value in range(-128, 128):
     if value < 0:
-        eeprom_data[to_unsigned(value) + SIGN_OFFSET + TWO_COMP_OFFSET] = 0x01
+        eeprom_data[to_unsigned(value) + SIGN_OFFSET + TWO_COMP_OFFSET] = DIGIT_MINUS
     else:
-        eeprom_data[value + SIGN_OFFSET + TWO_COMP_OFFSET] = 0
+        eeprom_data[value + SIGN_OFFSET + TWO_COMP_OFFSET] = DIGIT_BLANK
 
 print("Saving to 'display.bin' file")
 with open("display.bin", "wb") as f:
