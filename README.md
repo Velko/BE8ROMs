@@ -13,8 +13,17 @@ Original code (from which some parts might be copied over):
 Python adaptation, extra configuration options, readability improvements and explanations:
 * Copyright 2024 Jurģis Brigmanis
 
+## Why?
 
-## What’s here?
+Quite often a question pops up on [r/beneater](https://www.reddit.com/r/beneater/): "I have TL866 programmer and do not want to build the Arduino one. Do anybody have the EEPROM image files?"
+
+There are copies of binaries available, but these are just "stock" images without an option to customize them. More advanced builders generally have written their own scripts to create EEPROM images, but their projects have moved beyound the "stock" stage already.
+
+The goal is to provide scripts that create EEPROM images identical to original ones initially, and can be used as a starting point for customizations.
+
+If you're just looking for the binary images to download, head over to [`/releases`](/releases) section.
+
+## Contents
 
 There are four different Python scripts that correspond to Arduino sketches in Ben Eater's [Arduino EEPROM programmer](https://github.com/beneater/eeprom-programmer/) repository.
 
