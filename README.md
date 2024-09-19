@@ -21,7 +21,7 @@ There are copies of binaries available, but these are just "stock" images withou
 
 The goal is to provide scripts that create EEPROM images identical to original ones initially, and can be used as a starting point for customizations.
 
-If you're just looking for the binary images to download, head over to [`/releases`](/releases) section.
+If you're just looking for the binary images to download, head over to [`/releases`](https://github.com/Velko/BE8ROMs/releases/latest) section.
 
 ## Contents
 
