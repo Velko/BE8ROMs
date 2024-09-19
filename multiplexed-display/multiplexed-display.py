@@ -14,6 +14,9 @@ SEG_BIT_F   = 1 << 1
 SEG_BIT_G   = 1 << 0
 
 
+# Instead of working out the Truth Table as Ben did in his video, we're describing which segments should
+# be lit for each digit and let the program calculate the byte value.
+
 # Segments:
 #   +-- a --+
 #   |       |
